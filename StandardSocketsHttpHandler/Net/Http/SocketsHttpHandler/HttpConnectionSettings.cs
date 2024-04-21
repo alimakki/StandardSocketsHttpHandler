@@ -38,7 +38,7 @@ namespace System.Net.Http
         internal TimeSpan _expect100ContinueTimeout = HttpHandlerDefaults.DefaultExpect100ContinueTimeout;
         internal TimeSpan _connectTimeout = HttpHandlerDefaults.DefaultConnectTimeout;
 
-        internal SslClientAuthenticationOptions _sslOptions;
+        internal StandardSslClientAuthenticationOptions StandardSslOptions;
 
         internal IDictionary<string, object> _properties;
         internal Func<SocketsHttpConnectionContext, CancellationToken, Task<Stream>> _connectCallback;
@@ -70,7 +70,7 @@ namespace System.Net.Http
                 _preAuthenticate = _preAuthenticate,
                 _properties = _properties,
                 _proxy = _proxy,
-                _sslOptions = _sslOptions?.ShallowClone(), // shallow clone the options for basic prevention of mutation issues while processing
+                StandardSslOptions = StandardSslOptions?.ShallowClone(), // shallow clone the options for basic prevention of mutation issues while processing
                 _connectCallback = _connectCallback,
                 _useCookies = _useCookies,
                 _useProxy = _useProxy,

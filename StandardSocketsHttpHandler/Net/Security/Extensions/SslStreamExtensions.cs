@@ -11,29 +11,29 @@ namespace System.Net.Security
 {
     internal static class SslStreamExtensions
     {
-        public static Task AuthenticateAsClientAsync(this SslStream sslStream, SslClientAuthenticationOptions sslClientAuthenticationOptions, CancellationToken cancellationToken)
+        public static Task AuthenticateAsClientAsync(this SslStream sslStream, StandardSslClientAuthenticationOptions standardSslClientAuthenticationOptions, CancellationToken cancellationToken)
         {
             return Task.Factory.FromAsync(
                 BeginAuthenticateAsClient,
                 iar => ((SslStream)iar.AsyncState).EndAuthenticateAsClient(iar),
-                sslClientAuthenticationOptions, cancellationToken,
+                standardSslClientAuthenticationOptions, cancellationToken,
                 sslStream);
         }
 
-        public static IAsyncResult BeginAuthenticateAsClient(SslClientAuthenticationOptions sslClientAuthenticationOptions, CancellationToken cancellationToken, AsyncCallback asyncCallback, object asyncState)
+        public static IAsyncResult BeginAuthenticateAsClient(StandardSslClientAuthenticationOptions standardSslClientAuthenticationOptions, CancellationToken cancellationToken, AsyncCallback asyncCallback, object asyncState)
         {
             // .NET Standard 2.0 and below
-            bool checkCertificateRevocation = (sslClientAuthenticationOptions.CertificateRevocationCheckMode != X509RevocationMode.NoCheck);
-            SslProtocols sslProtocols = sslClientAuthenticationOptions.EnabledSslProtocols;
+            bool checkCertificateRevocation = (standardSslClientAuthenticationOptions.CertificateRevocationCheckMode != X509RevocationMode.NoCheck);
+            SslProtocols sslProtocols = standardSslClientAuthenticationOptions.EnabledSslProtocols;
             try
             {
-                return ((SslStream)asyncState).BeginAuthenticateAsClient(sslClientAuthenticationOptions.TargetHost, sslClientAuthenticationOptions.ClientCertificates, sslProtocols, checkCertificateRevocation, asyncCallback, asyncState);
+                return ((SslStream)asyncState).BeginAuthenticateAsClient(standardSslClientAuthenticationOptions.TargetHost, standardSslClientAuthenticationOptions.ClientCertificates, sslProtocols, checkCertificateRevocation, asyncCallback, asyncState);
             }
             catch (ArgumentException e) when (e.ParamName == "sslProtocolType")
             {
                 // .NET Framework prior to 4.7 will throw an exception when SslProtocols.None is provided to BeginAuthenticateAsClient.
                 sslProtocols = SecurityProtocol.DefaultSecurityProtocols;
-                return ((SslStream)asyncState).BeginAuthenticateAsClient(sslClientAuthenticationOptions.TargetHost, sslClientAuthenticationOptions.ClientCertificates, sslProtocols, checkCertificateRevocation, asyncCallback, asyncState);
+                return ((SslStream)asyncState).BeginAuthenticateAsClient(standardSslClientAuthenticationOptions.TargetHost, standardSslClientAuthenticationOptions.ClientCertificates, sslProtocols, checkCertificateRevocation, asyncCallback, asyncState);
             }
         }
     }

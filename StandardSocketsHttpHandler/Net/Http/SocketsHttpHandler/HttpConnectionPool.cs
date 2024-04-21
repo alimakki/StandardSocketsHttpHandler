@@ -37,7 +37,7 @@ namespace System.Net.Http
         /// <summary>For non-proxy connection pools, this is the host name in bytes; for proxies, null.</summary>
         private readonly byte[] _hostHeaderValueBytes;
         /// <summary>Options specialized and cached for this pool and its <see cref="_key"/>.</summary>
-        private readonly SslClientAuthenticationOptions _sslOptions;
+        private readonly StandardSslClientAuthenticationOptions _standardSslOptions;
 
         /// <summary>Queue of waiters waiting for a connection.  Created on demand.</summary>
         private Queue<TaskCompletionSourceWithCancellation<HttpConnection>> _waiters;
@@ -79,7 +79,7 @@ namespace System.Net.Http
                     Debug.Assert(sslHostName != null);
                     Debug.Assert(proxyUri == null);
 
-                    _sslOptions = ConstructSslOptions(poolManager, sslHostName);
+                    _standardSslOptions = ConstructSslOptions(poolManager, sslHostName);
                     break;
 
                 case HttpConnectionKind.Proxy:
@@ -102,7 +102,7 @@ namespace System.Net.Http
                     Debug.Assert(sslHostName != null);
                     Debug.Assert(proxyUri != null);
 
-                    _sslOptions = ConstructSslOptions(poolManager, sslHostName);
+                    _standardSslOptions = ConstructSslOptions(poolManager, sslHostName);
                     break;
 
                 case HttpConnectionKind.ProxyConnect:
@@ -122,7 +122,7 @@ namespace System.Net.Http
                 // Precalculate ASCII bytes for Host header
                 // Note that if _host is null, this is a (non-tunneled) proxy connection, and we can't cache the hostname.
                 string hostHeader =
-                    (_port != (_sslOptions == null ? DefaultHttpPort : DefaultHttpsPort)) ?
+                    (_port != (_standardSslOptions == null ? DefaultHttpPort : DefaultHttpsPort)) ?
                     $"{_host}:{_port}" :
                     _host;
 
@@ -138,33 +138,33 @@ namespace System.Net.Http
             }
         }
 
-        private static SslClientAuthenticationOptions ConstructSslOptions(HttpConnectionPoolManager poolManager, string sslHostName)
+        private static StandardSslClientAuthenticationOptions ConstructSslOptions(HttpConnectionPoolManager poolManager, string sslHostName)
         {
             Debug.Assert(sslHostName != null);
 
-            SslClientAuthenticationOptions sslOptions = poolManager.Settings._sslOptions?.ShallowClone() ?? new SslClientAuthenticationOptions();
-            sslOptions.ApplicationProtocols = null; // explicitly ignore any ApplicationProtocols set
-            sslOptions.TargetHost = sslHostName; // always use the key's name rather than whatever was specified
+            StandardSslClientAuthenticationOptions standardSslOptions = poolManager.Settings.StandardSslOptions?.ShallowClone() ?? new StandardSslClientAuthenticationOptions();
+            standardSslOptions.ApplicationProtocols = null; // explicitly ignore any ApplicationProtocols set
+            standardSslOptions.TargetHost = sslHostName; // always use the key's name rather than whatever was specified
 
             // Windows 7 and Windows 2008 R2 support TLS 1.1 and 1.2, but for legacy reasons by default those protocols
             // are not enabled when a developer elects to use the system default.  However, in .NET Core 2.0 and earlier,
             // HttpClientHandler would enable them, due to being a wrapper for WinHTTP, which enabled them.  Both for
             // compatibility and because we prefer those higher protocols whenever possible, SocketsHttpHandler also
             // pretends they're part of the default when running on Win7/2008R2.
-            if (s_isWindows7Or2008R2 && sslOptions.EnabledSslProtocols == SslProtocols.None)
+            if (s_isWindows7Or2008R2 && standardSslOptions.EnabledSslProtocols == SslProtocols.None)
             {
                 if (NetEventSource.IsEnabled)
                 {
                     NetEventSource.Info(poolManager, $"Win7OrWin2K8R2 platform, Changing default TLS protocols to {SecurityProtocol.DefaultSecurityProtocols}");
                 }
-                sslOptions.EnabledSslProtocols = SecurityProtocol.DefaultSecurityProtocols;
+                standardSslOptions.EnabledSslProtocols = SecurityProtocol.DefaultSecurityProtocols;
             }
 
-            return sslOptions;
+            return standardSslOptions;
         }
 
         public HttpConnectionSettings Settings => _poolManager.Settings;
-        public bool IsSecure => _sslOptions != null;
+        public bool IsSecure => _standardSslOptions != null;
         public HttpConnectionKind Kind => _kind;
         public bool AnyProxyKind => (_proxyUri != null);
         public Uri ProxyUri => _proxyUri;
@@ -407,9 +407,9 @@ namespace System.Net.Http
                 }
 
                 TransportContext transportContext = null;
-                if (_sslOptions != null)
+                if (_standardSslOptions != null)
                 {
-                    SslStream sslStream = await ConnectHelper.EstablishSslConnectionAsync(_sslOptions, request, stream, cancellationToken).ConfigureAwait(false);
+                    SslStream sslStream = await ConnectHelper.EstablishSslConnectionAsync(_standardSslOptions, request, stream, cancellationToken).ConfigureAwait(false);
                     stream = sslStream;
                     transportContext = sslStream.TransportContext;
                 }
@@ -746,12 +746,12 @@ namespace System.Net.Http
         public override string ToString() =>
             $"{nameof(HttpConnectionPool)}" +
             (_proxyUri == null ?
-                (_sslOptions == null ?
+                (_standardSslOptions == null ?
                     $"http://{_host}:{_port}" :
-                    $"https://{_host}:{_port}" + (_sslOptions.TargetHost != _host ? $", SSL TargetHost={_sslOptions.TargetHost}" : null)) :
-                (_sslOptions == null ?
+                    $"https://{_host}:{_port}" + (_standardSslOptions.TargetHost != _host ? $", SSL TargetHost={_standardSslOptions.TargetHost}" : null)) :
+                (_standardSslOptions == null ?
                     $"Proxy {_proxyUri}" :
-                    $"https://{_host}:{_port}/ tunnelled via Proxy {_proxyUri}" + (_sslOptions.TargetHost != _host ? $", SSL TargetHost={_sslOptions.TargetHost}" : null)));
+                    $"https://{_host}:{_port}/ tunnelled via Proxy {_proxyUri}" + (_standardSslOptions.TargetHost != _host ? $", SSL TargetHost={_standardSslOptions.TargetHost}" : null)));
 
         private void Trace(string message, [CallerMemberName] string memberName = null) =>
             NetEventSource.Log.HandlerMessage(

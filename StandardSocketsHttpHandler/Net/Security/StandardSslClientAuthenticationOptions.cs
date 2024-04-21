@@ -9,7 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace System.Net.Security
 {
-    public class SslClientAuthenticationOptions
+    public class StandardSslClientAuthenticationOptions
     {
         private EncryptionPolicy _encryptionPolicy = EncryptionPolicy.RequireEncryption;
         private X509RevocationMode _checkCertificateRevocation = X509RevocationMode.NoCheck;

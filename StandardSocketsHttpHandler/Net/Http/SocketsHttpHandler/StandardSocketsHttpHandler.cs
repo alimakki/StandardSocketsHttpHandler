@@ -204,13 +204,13 @@ namespace System.Net.Http
             }
         }
 
-        public SslClientAuthenticationOptions SslOptions
+        public StandardSslClientAuthenticationOptions StandardSslOptions
         {
-            get => _settings._sslOptions ?? (_settings._sslOptions = new SslClientAuthenticationOptions());
+            get => _settings.StandardSslOptions ?? (_settings.StandardSslOptions = new StandardSslClientAuthenticationOptions());
             set
             {
                 CheckDisposedOrStarted();
-                _settings._sslOptions = value;
+                _settings.StandardSslOptions = value;
             }
         }
 

@@ -6,8 +6,8 @@ namespace System.Net.Security
 {
     internal static class SslClientAuthenticationOptionsExtensions
     {
-        public static SslClientAuthenticationOptions ShallowClone(this SslClientAuthenticationOptions options) =>
-            new SslClientAuthenticationOptions()
+        public static StandardSslClientAuthenticationOptions ShallowClone(this StandardSslClientAuthenticationOptions options) =>
+            new StandardSslClientAuthenticationOptions()
             {
                 AllowRenegotiation = options.AllowRenegotiation,
                 ApplicationProtocols = options.ApplicationProtocols,
