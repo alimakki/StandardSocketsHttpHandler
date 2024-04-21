@@ -24,8 +24,13 @@ namespace System.Net.Http
                 // If HttpRequestMesssage.Headers will be accessed when equal to null, HttpRequestHeaders will be instantiated.
                 return true;
             }
+
+            if (headersField == null) 
+                return false;
+            
             HttpRequestHeaders headers = (HttpRequestHeaders)headersField.GetValue(request);
             return headers != null;
+
         }
     }
 }

@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PackageId>Makki.StandardSocketsHttpHandler</PackageId>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <RootNamespace>System.Net.Http</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Version>2.2.0.8</Version>
-    <Authors>Tal Aloni</Authors>
+    <Version>2.3.0.2</Version>
+    <Authors>Tal Aloni, Ali Makki</Authors>
     <PackageDescription>StandardSocketsHttpHandler is a backport of SocketsHttpHandler to .NET Standard 2.0</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/TalAloni/StandardSocketsHttpHandler</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/TalAloni/StandardSocketsHttpHandler</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/alimakki/StandardSocketsHttpHandler</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alimakki/StandardSocketsHttpHandler</RepositoryUrl>
     <DebugType>embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
@@ -25,6 +26,11 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Memory" Version="4.5.1" />
+    <Compile Remove="HashCode.cs" />
+    <Compile Remove="IO\Extensions\StreamExtensions.cs" />
+    <Compile Remove="Net\Security\Extensions\SslStreamExtensions.cs" />
+    <Compile Remove="Net\Security\SslApplicationProtocol.cs" />
+    <Compile Remove="Net\Security\SslClientAuthenticationOptions.cs" />
   </ItemGroup>
 
   <ItemGroup>
