@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Makki.StandardSocketsHttpHandler</PackageId>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>System.Net.Http</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -22,10 +22,6 @@
     <Compile Remove="Net\Security\Extensions\SslStreamExtensions.cs" />
     <Compile Remove="Net\Security\SslApplicationProtocol.cs" />
     <Compile Remove="Net\Security\SslClientAuthenticationOptions.cs" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Memory" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
